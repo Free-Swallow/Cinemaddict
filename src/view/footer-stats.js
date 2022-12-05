@@ -1,6 +1,6 @@
-const createFooterStats = () => (
+const createFooterStatsTemplate = (list) => (
   `
-  <p>130 291 movies inside</p>`
+  <p>${list.length} movies inside</p>`
 );
 
-export {createFooterStats};
+export {createFooterStatsTemplate};
