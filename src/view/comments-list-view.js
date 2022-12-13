@@ -1,4 +1,5 @@
-import {convertCommentDate} from '../util';
+import {convertCommentDate} from '../util/util.js';
+import {createElement} from '../util/render';
 
 const createComment = (list) => list.map(({smile, date, message, name}) => (`<li class="film-details__comment">
             <span class="film-details__comment-emoji">
@@ -20,5 +21,30 @@ const createCommentsListTemplate = (list) => (
         </ul>`
 );
 
-export {createCommentsListTemplate};
+class CommentsListView {
+  #element = null;
+  #commentsList = null;
+
+  constructor(commentsList) {
+    this.#commentsList = commentsList;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createCommentsListTemplate(this.#commentsList);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export default CommentsListView;
 

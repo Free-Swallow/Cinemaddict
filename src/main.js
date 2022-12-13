@@ -1,59 +1,115 @@
-import './mock/mock';
-import {createProfileTemplate} from './view/profile';
-import {createMainNavTemplate} from './view/main-nav';
-import {createSortListTemplate} from './view/sort-list';
-import {createFilmsSectionTemplate} from './view/films-section';
-import {createFilmsListTitleTemplate} from './view/films-list-title';
-import {createFilmsContainerTemplate} from './view/films-container';
-import {createFilmCardTemplate} from './view/film-card';
-import {createShowMoreButtonTemplate} from './view/show-more-button';
-import {createFilmsListExtraTemplate} from './view/films-list-extra';
-import {createFilmsListTitleExtraTemplate} from './view/films-list-title-extra';
-import {createFooterStatsTemplate} from './view/footer-stats';
-import {createPopupTemplate} from './view/popup-view';
-import {renderTemplate, RenderPosition} from './render';
-import {createMovieList, createCommentList} from './mock/mock';
+import ProfileView from './view/profile-view.js';
+import MainNavView from './view/main-nav-view.js';
+import SortListView from './view/sort-list-view.js';
+import MoviesSectionView from './view/movies-section-view.js';
+import MoviesListTitleView from './view/movies-list-title-view.js';
+import MoviesContainerView from './view/movies-container-view.js';
+import MovieCardView from './view/movie-card-view.js';
+import MoviesListView from './view/movies-list-view.js';
+import ShowMoreButtonView from './view/show-more-button-view.js';
+import FooterStatsView from './view/footer-stats-view.js';
+import PopupView from './view/popup-view.js';
+import EmojiListView from './view/emoji-list-view.js';
+import CommentsListView from './view/comments-list-view.js';
+import {RenderPosition, renderElement} from './util/render.js';
+import {createMovieList, createCommentList} from './mock/mock.js';
+import {findComments} from './util/util.js';
 
 const movieList = createMovieList();
 const commentList = createCommentList();
 
 const MOVIES_COUNT_PER_STEP = 5;
 const MOVIES_COUNT_START = 4;
+const EMPTY_COMMENTS_LIST = 0;
+const CLASS_OVERFLOW_HIDDEN = 'hide-overflow';
+const ESCAPE_KEY = 'Escape';
 
-const siteHeaderNode = document.querySelector('.header');
-const siteMainNode = document.querySelector('.main');
-const footerStatisticsNode = document.querySelector('.footer__statistics');
+const bodyNode = document.querySelector('body');
+const headerNode = bodyNode.querySelector('.header');
+const mainNode = bodyNode.querySelector('.main');
+const footerNode = bodyNode.querySelector('.footer');
+const footerStatisticsNode = footerNode.querySelector('.footer__statistics');
 
-renderTemplate(siteHeaderNode, createProfileTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(siteMainNode, createMainNavTemplate(movieList), RenderPosition.AFTERBEGIN);
-renderTemplate(siteMainNode, createSortListTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(siteMainNode, createFilmsSectionTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(footerStatisticsNode, createFooterStatsTemplate(movieList), RenderPosition.AFTERBEGIN);
+const moviesSectionComponent = new MoviesSectionView();
+const moviesListComponent = new MoviesListView();
+const moviesContainerComponent = new MoviesContainerView();
 
-const filmsSectionNode = siteMainNode.querySelector('.films');
-const filmsListNode = filmsSectionNode.querySelector('.films-list');
+// Отрисовка Поп-апа
 
-renderTemplate(filmsListNode, createFilmsListTitleTemplate(), RenderPosition.AFTERBEGIN);
-renderTemplate(filmsListNode, createFilmsContainerTemplate(), RenderPosition.BEFOREEND);
+const renderPopup = (movie) => {
+  const popupComponent = new PopupView(movie);
+  const movieCommentsList = findComments(commentList, movie.comments);
 
-const filmsCardListNode = filmsListNode.querySelector('.films-list__container');
+  bodyNode.classList.add(CLASS_OVERFLOW_HIDDEN);
+
+  renderElement(document.body, popupComponent.element, RenderPosition.BEFOREEND);
+
+  const popupCloseButtonNode = popupComponent.element.querySelector('.film-details__close-btn');
+  const emojiContainer = popupComponent.element.querySelector('.film-details__new-comment');
+
+  renderElement(emojiContainer, new EmojiListView().element, RenderPosition.BEFOREEND);
+
+  if (movie.comments.length !== EMPTY_COMMENTS_LIST) {
+    renderElement(emojiContainer, new CommentsListView(movieCommentsList).element, RenderPosition.BEFOREBEGIN);
+  }
+
+  const popupClickCloseHandler = () => closePopup();
+  const popupKeydownCloseHandler = (evt) => {
+    if (evt.key === ESCAPE_KEY) {
+      evt.preventDefault();
+      closePopup();
+    }
+  };
+
+  function closePopup() {
+    popupComponent.element.remove();
+    bodyNode.classList.remove(CLASS_OVERFLOW_HIDDEN);
+    popupCloseButtonNode.removeEventListener('click', popupClickCloseHandler);
+    document.removeEventListener('keydown', popupKeydownCloseHandler);
+  }
+
+  popupCloseButtonNode.addEventListener('click', popupClickCloseHandler);
+  document.addEventListener('keydown' , popupKeydownCloseHandler);
+};
+
+// Отрисовка карточки фильма
+
+const renderMovieCard = (container, movie) => {
+  const newMovieComponent = new MovieCardView(movie);
+  const movieLink = newMovieComponent.element.querySelector('.film-card__link');
+
+  movieLink.addEventListener('click', () => {
+    renderPopup(movie);
+  });
+
+  renderElement(container, newMovieComponent.element, RenderPosition.BEFOREEND);
+};
+
+renderElement(headerNode, new ProfileView().element, RenderPosition.BEFOREEND);
+renderElement(mainNode, new MainNavView(movieList).element, RenderPosition.AFTERBEGIN);
+renderElement(mainNode, new SortListView().element, RenderPosition.BEFOREEND);
+renderElement(mainNode, moviesSectionComponent.element, RenderPosition.BEFOREEND);
+renderElement(moviesSectionComponent.element, moviesListComponent.element, RenderPosition.BEFOREEND);
+renderElement(footerStatisticsNode, new FooterStatsView(movieList.length).element, RenderPosition.AFTERBEGIN);
+renderElement(moviesListComponent.element, new MoviesListTitleView().element, RenderPosition.AFTERBEGIN);
+renderElement(moviesListComponent.element, moviesContainerComponent.element, RenderPosition.BEFOREEND);
 
 for (let i = 0; i <= Math.min(movieList.length, MOVIES_COUNT_START); i++) {
-  renderTemplate(filmsCardListNode, createFilmCardTemplate(movieList[i]), RenderPosition.BEFOREEND);
+  renderMovieCard(moviesContainerComponent.element, movieList[i]);
 }
 
 if (movieList.length > MOVIES_COUNT_PER_STEP) {
   let renderMovieCount = MOVIES_COUNT_PER_STEP;
 
-  renderTemplate(filmsListNode, createShowMoreButtonTemplate(), RenderPosition.BEFOREEND);
+  renderElement(moviesListComponent.element, new ShowMoreButtonView().element, RenderPosition.BEFOREEND);
 
-  const buttonShowMoreNode = filmsListNode.querySelector('.films-list__show-more');
+  const buttonShowMoreNode = mainNode.querySelector('.films-list__show-more');
 
   buttonShowMoreNode.addEventListener('click', (evt) => {
     evt.preventDefault();
     movieList
       .slice(renderMovieCount, renderMovieCount + MOVIES_COUNT_PER_STEP)
-      .forEach((movie) => renderTemplate(filmsCardListNode, createFilmCardTemplate(movie), RenderPosition.BEFOREEND));
+      .forEach((movie) => renderMovieCard(moviesContainerComponent.element, movie));
 
     renderMovieCount += MOVIES_COUNT_PER_STEP;
 
@@ -63,39 +119,9 @@ if (movieList.length > MOVIES_COUNT_PER_STEP) {
   });
 }
 
-for (let i = 0; i <= 1; i++) {
-  renderTemplate(filmsSectionNode, createFilmsListExtraTemplate(), RenderPosition.BEFOREEND);
-}
-
-const extraListNode = filmsSectionNode.querySelectorAll('.films-list--extra');
-
-extraListNode.forEach((item) => renderTemplate(item, createFilmsListTitleExtraTemplate(), RenderPosition.AFTERBEGIN)
-);
-
-extraListNode.forEach((item) => renderTemplate(item, createFilmsContainerTemplate(), RenderPosition.BEFOREEND)
-);
-
-const filmsCardListExtraFirstNode = extraListNode[0].querySelector('.films-list__container');
-const filmsCardListExtraSecondNode = extraListNode[1].querySelector('.films-list__container');
-
-for (let i = 0; i <= 1; i++) {
-  renderTemplate(filmsCardListExtraFirstNode, createFilmCardTemplate(movieList
-    .slice()
-    .sort((a, b) => b.rating - a.rating)[i]), RenderPosition.BEFOREEND);
-}
-
-for (let i = 0; i <= 1; i++) {
-  renderTemplate(filmsCardListExtraSecondNode, createFilmCardTemplate(movieList
-    .slice()
-    .sort((a, b) => b.rating - a.rating)[i]), RenderPosition.BEFOREEND);
-}
-
-renderTemplate(document.body, createPopupTemplate(movieList[0], commentList), RenderPosition.BEFOREEND);
-
-const popupNode = document.querySelector('.film-details');
-const popupCloseButtonNode = document.querySelector('.film-details__close-btn');
-
-popupCloseButtonNode.addEventListener('click', () => {
-  popupNode.remove();
-});
-
+// for (let i = 0; i <= 1; i++) {
+//   renderTemplate(filmsCardListExtraSecondNode, createFilmCardTemplate(movieList
+//     .slice()
+//     .sort((a, b) => b.rating - a.rating)[i]), RenderPosition.BEFOREEND);
+// }
+//
