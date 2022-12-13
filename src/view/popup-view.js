@@ -1,6 +1,5 @@
-import {createCommentsListTemplate} from './comments-list-view';
-import {findComments, convertTime} from '../util';
-import {createEmojiListTemplate} from './emoji-list-view';
+import {convertTime} from '../util/util.js';
+import {createElement} from '../util/render.js';
 
 const createPopupTemplate = ({
   comments,
@@ -20,7 +19,7 @@ const createPopupTemplate = ({
   country,
   poster,
   genre
-}, commentsList) => (
+}) => (
   `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -95,7 +94,7 @@ const createPopupTemplate = ({
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
-        ${comments.length !== 0 ? createCommentsListTemplate(findComments(commentsList, comments)) : ''}
+
 
         <div class="film-details__new-comment">
           <div class="film-details__add-emoji-label"></div>
@@ -103,9 +102,6 @@ const createPopupTemplate = ({
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
           </label>
-
-          ${createEmojiListTemplate()}
-
         </div>
       </section>
     </div>
@@ -113,4 +109,31 @@ const createPopupTemplate = ({
 </section>`
 );
 
-export {createPopupTemplate};
+class PopupView {
+  #element = null;
+  #movie = null;
+  #commentList = null;
+
+  constructor(movie, commentList) {
+    this.#movie = movie;
+    this.#commentList = commentList;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createPopupTemplate(this.#movie, this.#commentList);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export default PopupView;

@@ -1,3 +1,5 @@
+import {createElement} from '../util/render.js';
+
 const emojiList = [
   'smile',
   'sleeping',
@@ -19,4 +21,24 @@ const createEmojiListTemplate = () => (
 </div>`
 );
 
-export {createEmojiListTemplate};
+class EmojiListView {
+  #element = null;
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createEmojiListTemplate();
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export default EmojiListView;

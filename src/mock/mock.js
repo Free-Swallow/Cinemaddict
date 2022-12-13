@@ -1,4 +1,4 @@
-import {getRandomPositiveFloat, getRandomInteger} from '../util';
+import {getRandomPositiveFloat, getRandomInteger} from '../util/util.js';
 import dayjs from 'dayjs';
 
 // Данные для карточки фильма
@@ -251,7 +251,7 @@ const getMovie = createMovie();
 
 const getComment = createComment();
 
-const createMovieList = () => Array.from({length: 89}, getMovie);
+const createMovieList = () => Array.from({length: 29}, getMovie);
 
 const createCommentList = () => Array.from({length: 100}, getComment);
 

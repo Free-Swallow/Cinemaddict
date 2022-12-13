@@ -1,3 +1,5 @@
+import {createElement} from '../util/render';
+
 const movieToFilterMap = {
   watchlist: (movies) => movies.filter((movie) => movie.isWatchList).length,
   history: (movies) => movies.filter((movie) => movie.isWatched).length,
@@ -34,4 +36,25 @@ const createMainNavTemplate = (movies) => {
   </nav>`;
 };
 
-export {createMainNavTemplate};
+class MainNavView {
+  #element = null;
+  #movies = null;
+
+  constructor(movies) {
+    this.#movies = movies;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createMainNavTemplate(this.#movies);
+  }
+}
+
+export default MainNavView;
