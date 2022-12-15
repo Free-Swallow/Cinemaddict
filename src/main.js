@@ -11,6 +11,7 @@ import FooterStatsView from './view/footer-stats-view.js';
 import PopupView from './view/popup-view.js';
 import EmojiListView from './view/emoji-list-view.js';
 import CommentsListView from './view/comments-list-view.js';
+import MoviesListEmptyTitle from './view/movies-list-empty-title.js';
 import {RenderPosition, renderElement} from './util/render.js';
 import {createMovieList, createCommentList} from './mock/mock.js';
 import {findComments} from './util/util.js';
@@ -85,43 +86,50 @@ const renderMovieCard = (container, movie) => {
   renderElement(container, newMovieComponent.element, RenderPosition.BEFOREEND);
 };
 
-renderElement(headerNode, new ProfileView().element, RenderPosition.BEFOREEND);
+if (movieList.filter((movie) => movie.isWatched).length !== 0) {
+  renderElement(headerNode, new ProfileView(movieList).element, RenderPosition.BEFOREEND);
+}
+
 renderElement(mainNode, new MainNavView(movieList).element, RenderPosition.AFTERBEGIN);
 renderElement(mainNode, new SortListView().element, RenderPosition.BEFOREEND);
 renderElement(mainNode, moviesSectionComponent.element, RenderPosition.BEFOREEND);
 renderElement(moviesSectionComponent.element, moviesListComponent.element, RenderPosition.BEFOREEND);
 renderElement(footerStatisticsNode, new FooterStatsView(movieList.length).element, RenderPosition.AFTERBEGIN);
-renderElement(moviesListComponent.element, new MoviesListTitleView().element, RenderPosition.AFTERBEGIN);
-renderElement(moviesListComponent.element, moviesContainerComponent.element, RenderPosition.BEFOREEND);
 
-for (let i = 0; i <= Math.min(movieList.length, MOVIES_COUNT_START); i++) {
-  renderMovieCard(moviesContainerComponent.element, movieList[i]);
-}
+const createMainBlocksFilms = () => {
+  if (movieList.length !== 0) {
+    renderElement(moviesListComponent.element, new MoviesListTitleView().element, RenderPosition.AFTERBEGIN);
+    renderElement(moviesListComponent.element, moviesContainerComponent.element, RenderPosition.BEFOREEND);
 
-if (movieList.length > MOVIES_COUNT_PER_STEP) {
-  let renderMovieCount = MOVIES_COUNT_PER_STEP;
-
-  renderElement(moviesListComponent.element, new ShowMoreButtonView().element, RenderPosition.BEFOREEND);
-
-  const buttonShowMoreNode = mainNode.querySelector('.films-list__show-more');
-
-  buttonShowMoreNode.addEventListener('click', (evt) => {
-    evt.preventDefault();
-    movieList
-      .slice(renderMovieCount, renderMovieCount + MOVIES_COUNT_PER_STEP)
-      .forEach((movie) => renderMovieCard(moviesContainerComponent.element, movie));
-
-    renderMovieCount += MOVIES_COUNT_PER_STEP;
-
-    if (renderMovieCount >= movieList.length) {
-      buttonShowMoreNode.remove();
+    //Отрисовка фильмов
+    for (let i = 0; i <= Math.min(movieList.length, MOVIES_COUNT_START); i++) {
+      renderMovieCard(moviesContainerComponent.element, movieList[i]);
     }
-  });
-}
 
-// for (let i = 0; i <= 1; i++) {
-//   renderTemplate(filmsCardListExtraSecondNode, createFilmCardTemplate(movieList
-//     .slice()
-//     .sort((a, b) => b.rating - a.rating)[i]), RenderPosition.BEFOREEND);
-// }
-//
+    //Отрисовка кнопки Показать Больше
+    if (movieList.length > MOVIES_COUNT_PER_STEP) {
+      let renderMovieCount = MOVIES_COUNT_PER_STEP;
+
+      renderElement(moviesListComponent.element, new ShowMoreButtonView().element, RenderPosition.BEFOREEND);
+
+      const buttonShowMoreNode = mainNode.querySelector('.films-list__show-more');
+
+      buttonShowMoreNode.addEventListener('click', (evt) => {
+        evt.preventDefault();
+        movieList
+          .slice(renderMovieCount, renderMovieCount + MOVIES_COUNT_PER_STEP)
+          .forEach((movie) => renderMovieCard(moviesContainerComponent.element, movie));
+
+        renderMovieCount += MOVIES_COUNT_PER_STEP;
+
+        if (renderMovieCount >= movieList.length) {
+          buttonShowMoreNode.remove();
+        }
+      });
+    }
+  } else {
+    renderElement(moviesListComponent.element, new MoviesListEmptyTitle().element, RenderPosition.AFTERBEGIN);
+  }
+};
+
+createMainBlocksFilms();
