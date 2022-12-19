@@ -1,4 +1,4 @@
-import {createElement} from '../util/render';
+import AbstractView from './abstract-view.js';
 
 const movieToFilterMap = {
   watchlist: (movies) => movies.filter((movie) => movie.isWatchList).length,
@@ -36,20 +36,12 @@ const createMainNavTemplate = (movies) => {
   </nav>`;
 };
 
-class MainNavView {
-  #element = null;
+class MainNavView extends AbstractView {
   #movies = null;
 
   constructor(movies) {
+    super();
     this.#movies = movies;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {

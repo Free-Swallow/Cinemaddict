@@ -1,5 +1,5 @@
 import {convertCommentDate} from '../util/util.js';
-import {createElement} from '../util/render';
+import AbstractView from './abstract-view.js';
 
 const createComment = (list) => list.map(({smile, date, message, name}) => (`<li class="film-details__comment">
             <span class="film-details__comment-emoji">
@@ -21,28 +21,16 @@ const createCommentsListTemplate = (list) => (
         </ul>`
 );
 
-class CommentsListView {
-  #element = null;
+class CommentsListView extends AbstractView {
   #commentsList = null;
 
   constructor(commentsList) {
+    super();
     this.#commentsList = commentsList;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createCommentsListTemplate(this.#commentsList);
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
 
