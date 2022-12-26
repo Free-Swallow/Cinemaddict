@@ -1,4 +1,4 @@
-import {createElement} from '../util/render.js';
+import AbstractView from './abstract-view.js';
 
 const emojiList = [
   'smile',
@@ -21,23 +21,9 @@ const createEmojiListTemplate = () => (
 </div>`
 );
 
-class EmojiListView {
-  #element = null;
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
+class EmojiListView extends AbstractView{
   get template() {
     return createEmojiListTemplate();
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
 

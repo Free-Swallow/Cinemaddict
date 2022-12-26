@@ -1,5 +1,5 @@
-import {createElement} from '../util/render';
-import {convertTime} from '../util/util';
+import AbstractView from './abstract-view.js';
+import {convertTime} from '../util/util.js';
 
 const createMovieCardTemplate = ({
   title,
@@ -35,28 +35,28 @@ const createMovieCardTemplate = ({
         </article>`
 );
 
-class MovieCardView {
-  #element = null;
+class MovieCardView extends AbstractView {
   #movie = null;
 
   constructor(movie) {
+    super();
     this.#movie = movie;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createMovieCardTemplate(this.#movie);
   }
 
-  removeElement() {
-    this.#element = null;
+  setClickCallPopupHandler = (callback) => {
+    this._callback.clickCallPopup = callback;
+    this.element
+      .querySelector('.film-card__link')
+      .addEventListener('click', this.#clickCallPopupHandler);
+  }
+
+  #clickCallPopupHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.clickCallPopup();
   }
 }
 

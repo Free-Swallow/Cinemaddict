@@ -1,5 +1,5 @@
 import {convertTime} from '../util/util.js';
-import {createElement} from '../util/render.js';
+import AbstractView from './abstract-view.js';
 
 const createPopupTemplate = ({
   comments,
@@ -109,30 +109,30 @@ const createPopupTemplate = ({
 </section>`
 );
 
-class PopupView {
-  #element = null;
+class PopupView extends AbstractView {
   #movie = null;
   #commentList = null;
 
   constructor(movie, commentList) {
+    super();
     this.#movie = movie;
     this.#commentList = commentList;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createPopupTemplate(this.#movie, this.#commentList);
   }
 
-  removeElement() {
-    this.#element = null;
+  setClickCloseHandler = (callback) => {
+    this._callback.clickClose = callback;
+    this.element
+      .querySelector('.film-details__close-btn')
+      .addEventListener('click', this.#clickCloseHandler);
+  }
+
+  #clickCloseHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.clickClose();
   }
 }
 
