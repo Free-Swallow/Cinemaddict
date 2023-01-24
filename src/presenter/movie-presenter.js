@@ -4,7 +4,7 @@ import {renderElement, RenderPosition, replace, remove} from '../util/render.js'
 import EmojiListView from '../view/emoji-list-view.js';
 
 const CLASS_OVERFLOW_HIDDEN = 'hide-overflow';
-const EMPTY_COMMENTS_LIST = 0;
+// const EMPTY_COMMENTS_LIST = 0;
 const KeyCode = {
   ESCAPE: 'Escape',
   ESC: 'Esc',
