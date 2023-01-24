@@ -1,6 +1,14 @@
 import AbstractView from './abstract-view.js';
 import {convertTime} from '../util/util.js';
 
+const convertDescription = (str) => {
+  if (str.length > 200) {
+    return `${str.slice(0, 200).trim()}...`;
+  }
+
+  return str;
+};
+
 const createMovieCardTemplate = ({
   title,
   rating,
@@ -24,7 +32,7 @@ const createMovieCardTemplate = ({
               <span class="film-card__genre">${genre.join(', ')}</span>
             </p>
             <img src="${poster}" alt="" class="film-card__poster">
-            <p class="film-card__description">${description}</p>
+            <p class="film-card__description">${convertDescription(description)}</p>
             <span class="film-card__comments">${comments.length} comments</span>
           </a>
           <div class="film-card__controls">
@@ -47,6 +55,8 @@ class MovieCardView extends AbstractView {
     return createMovieCardTemplate(this.#movie);
   }
 
+  // HANDLER
+
   setClickCallPopupHandler = (callback) => {
     this._callback.clickCallPopup = callback;
     this.element
@@ -54,10 +64,46 @@ class MovieCardView extends AbstractView {
       .addEventListener('click', this.#clickCallPopupHandler);
   }
 
+  setClickWatchlistHandler = (callback) => {
+    this._callback.clickWatchlist = callback;
+    this.element
+      .querySelector('.film-card__controls-item--add-to-watchlist')
+      .addEventListener('click', this.#clickWatchlistHandler);
+  };
+
+  setClickWatchedHandler = (callback) => {
+    this._callback.clickWatched = callback;
+    this.element
+      .querySelector('.film-card__controls-item--mark-as-watched')
+      .addEventListener('click', this.#clickWatchedHandler);
+  };
+
+  setClickFavoriteHandler = (callback) => {
+    this._callback.clickFavorite = callback;
+    this.element
+      .querySelector('.film-card__controls-item--favorite')
+      .addEventListener('click', this.#clickFavoriteHandler);
+  };
+
   #clickCallPopupHandler = (evt) => {
     evt.preventDefault();
     this._callback.clickCallPopup();
-  }
+  };
+
+  #clickWatchlistHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.clickWatchlist();
+  };
+
+  #clickWatchedHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.clickWatched();
+  };
+
+  #clickFavoriteHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.clickFavorite();
+  };
 }
 
 export default MovieCardView;
