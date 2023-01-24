@@ -48,4 +48,30 @@ const convertTime = (mins) => {
 
 const convertCommentDate = (date) => dayjs(date).fromNow();
 
-export {getRandomPositiveFloat, getRandomInteger, findComments, convertTime, convertCommentDate};
+const updateItem = (items, update) => {
+  const index = items.findIndex((item) => item.id === update.id);
+
+  if (index === -1) {
+    return items;
+  }
+
+  return [
+    ...items.slice(0, index),
+    update,
+    ...items.slice(index + 1),
+  ];
+};
+
+const sortByDate = (a, b) => b.year > a.year;
+const sortByRating = (a, b) => b.rating > a.rating;
+
+export {
+  getRandomPositiveFloat,
+  getRandomInteger,
+  findComments,
+  convertTime,
+  convertCommentDate,
+  updateItem,
+  sortByDate,
+  sortByRating
+};
