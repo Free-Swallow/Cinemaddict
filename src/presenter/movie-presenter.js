@@ -1,7 +1,6 @@
 import MovieCardView from '../view/movie-card-view.js';
 import PopupView from '../view/popup-view.js';
 import {renderElement, RenderPosition, replace, remove} from '../util/render.js';
-import EmojiListView from '../view/emoji-list-view.js';
 
 const CLASS_OVERFLOW_HIDDEN = 'hide-overflow';
 // const EMPTY_COMMENTS_LIST = 0;
@@ -17,7 +16,6 @@ class MoviePresenter {
   #body = document.querySelector('body');
   #movie = null;
   #changeData = null;
-  #scrollValue = null;
 
   constructor(movieContainer, changeData) {
     this.#movieContainer = movieContainer;
@@ -39,9 +37,12 @@ class MoviePresenter {
     };
 
     this.#movieComponent.setClickCallPopupHandler(createPopupHandler);
+    this.#popupComponent.setClickCloseHandler(this.#popupClickCloseHandler);
+
     this.#movieComponent.setClickWatchlistHandler(this.#handlerWatchlistClick);
     this.#movieComponent.setClickWatchedHandler(this.#handlerWatchedClick);
     this.#movieComponent.setClickFavoriteHandler(this.#handlerFavoriteClick);
+
     this.#popupComponent.setClickWatchlistHandler(this.#handlerPopupWatchlistClick);
     this.#popupComponent.setClickWatchedHandler(this.#handlerPopupWatchedClick);
     this.#popupComponent.setClickFavoriteHandler(this.#handlerPopupFavoriteClick);
@@ -55,58 +56,45 @@ class MoviePresenter {
       replace(this.#movieComponent, prevMovieComponent);
     }
 
-    if (this.#movieContainer.contains(prevPopupComponent.element)) {
+    if (this.#body.contains(prevPopupComponent.element)) {
+      const scrollValue = prevPopupComponent.element.scrollTop;
       replace(this.#popupComponent, prevPopupComponent);
+      this.#popupComponent.element.scrollTop = scrollValue;
     }
 
     remove(prevMovieComponent);
     remove(prevPopupComponent);
   };
 
-  #renderPopup = (popup) => {
-    const saveScroll = () => (this.#scrollValue = popup.element.scrollTop);
+  #closePopup = () => {
+    const popupCloseButtonNode = this.#popupComponent.element.querySelector('.film-details__close-btn');
 
-    popup.element.addEventListener('scroll', saveScroll);
+    this.#popupComponent.reset(this.#movie);
+    this.#popupComponent.element.remove();
+    this.#body.classList.remove(CLASS_OVERFLOW_HIDDEN);
+    popupCloseButtonNode.removeEventListener('click', this.#popupClickCloseHandler);
+    document.removeEventListener('keydown', this.#popupKeydownCloseHandler);
+  };
 
-    const popupCloseButtonNode = popup.element.querySelector('.film-details__close-btn');
-    const emojiContainer = popup.element.querySelector('.film-details__new-comment');
+  #popupClickCloseHandler = () => {
+    this.#closePopup();
+  };
 
+  #popupKeydownCloseHandler = (evt) => {
+    if (evt.key === KeyCode.ESCAPE || evt.key === KeyCode.ESC) {
+      evt.preventDefault();
+      this.#closePopup();
+    }
+  };
+
+  #renderPopup = () => {
+    // const emojiContainer = this.#popupComponent.element.querySelector('.film-details__new-comment');
     this.#body.classList.add(CLASS_OVERFLOW_HIDDEN);
-
-    renderElement(this.#body, popup, RenderPosition.BEFOREEND);
-    renderElement(emojiContainer, new EmojiListView(), RenderPosition.BEFOREEND);
-
-    popup.element.scrollTo(0, this.#scrollValue);
-
+    renderElement(this.#body, this.#popupComponent, RenderPosition.BEFOREEND);
     // if (movie.comments.length !== EMPTY_COMMENTS_LIST) {
     //   renderElement(emojiContainer, new CommentsListView(movieCommentsList), RenderPosition.BEFOREBEGIN);
     // }
-
-    const closePopup = () => {
-      this.#popupComponent.element.remove();
-      this.#body.classList.remove(CLASS_OVERFLOW_HIDDEN);
-      this.#scrollValue = null;
-      popupCloseButtonNode.removeEventListener('click', popupClickCloseHandler);
-      document.removeEventListener('keydown', popupKeydownCloseHandler);
-      popup.element.removeEventListener('scroll', saveScroll);
-    };
-
-    function popupClickCloseHandler() {
-      closePopup();
-    }
-
-    function popupKeydownCloseHandler(evt) {
-      if (evt.key === KeyCode.ESCAPE || evt.key === KeyCode.ESC) {
-        evt.preventDefault();
-        closePopup();
-      }
-    }
-
-    this.#popupComponent.setClickCloseHandler(() => {
-      popupClickCloseHandler();
-    });
-
-    document.addEventListener('keydown' , popupKeydownCloseHandler);
+    document.addEventListener('keydown' , this.#popupKeydownCloseHandler);
   }
 
   #closeOtherPopup = () => {
@@ -134,17 +122,14 @@ class MoviePresenter {
 
   #handlerPopupWatchlistClick = () => {
     this.#handlerWatchlistClick();
-    this.#renderPopup(this.#popupComponent);
   };
 
   #handlerPopupWatchedClick = () => {
     this.#handlerWatchedClick();
-    this.#renderPopup(this.#popupComponent);
   };
 
   #handlerPopupFavoriteClick = () => {
     this.#handlerFavoriteClick();
-    this.#renderPopup(this.#popupComponent);
   };
 }
 

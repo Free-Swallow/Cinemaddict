@@ -47,7 +47,7 @@ class BoardPresenter {
   #moviesSectionComponent = new MoviesSectionView();
   #moviesListComponent = new MoviesListView();
   #moviesContainerComponent = new MoviesContainerView();
-  #sortListComponent = new SortListView();
+  #sortListComponent = new SortListView(this.#currentSortType);
   #moviesListTitleComponent = new MoviesListTitleView();
   #buttonShowMoreComponent = new ShowMoreButtonView();
 
