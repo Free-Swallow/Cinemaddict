@@ -1,5 +1,13 @@
 import {convertTime} from '../util/util.js';
-import AbstractView from './abstract-view.js';
+import SmartView from './smart-view.js';
+import {KeyCode} from '../util/const.js';
+
+const emojiList = [
+  'smile',
+  'sleeping',
+  'puke',
+  'angry',
+];
 
 const createPopupTemplate = ({
   comments,
@@ -18,9 +26,20 @@ const createPopupTemplate = ({
   runtime,
   country,
   poster,
-  genre
-}) => (
-  `<section class="film-details">
+  genre,
+  userEmoji,
+  userMessage,
+  isEmojiChecked
+}) => {
+  const createEmojiInput = () => emojiList
+    .map((emoji) => (
+      `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji}" value="${emoji}" ${isEmojiChecked === `emoji-${emoji}` ? 'checked' : ''}>
+            <label class="film-details__emoji-label" for="emoji-${emoji}">
+              <img src="./images/emoji/${emoji}.png" width="30" height="30" alt="emoji">
+            </label>`)
+    );
+
+  return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
       <div class="film-details__close">
@@ -97,31 +116,61 @@ const createPopupTemplate = ({
 
 
         <div class="film-details__new-comment">
-          <div class="film-details__add-emoji-label"></div>
+          <div class="film-details__add-emoji-label">${userEmoji}</div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${userMessage}</textarea>
           </label>
+
+          <div class="film-details__emoji-list">
+            ${createEmojiInput().join('')}
+          </div>
         </div>
       </section>
     </div>
   </form>
-</section>`
-);
+</section>`;
+};
 
-class PopupView extends AbstractView {
-  #movie = null;
+class PopupView extends SmartView {
   #commentList = null;
+  #comment = null;
 
   constructor(movie, commentList) {
     super();
-    this.#movie = movie;
+    this._data = PopupView.parseMovieToData(movie);
     this.#commentList = commentList;
+
+    this.setFormSubmitHandler(this.#commentSubmit);
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createPopupTemplate(this.#movie, this.#commentList);
+    return createPopupTemplate(this._data, this.#commentList);
   }
+
+  reset = (movie) => {
+    this.updateData(PopupView.parseMovieToData(movie),);
+  };
+
+  #commentSubmit = () => {
+    this.#comment.disabled = true;
+  }
+
+  restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setClickCloseHandler(this._callback.clickClose);
+    this.setClickWatchlistHandler(this._callback.clickWatchlist);
+    this.setClickWatchedHandler(this._callback.clickWatched);
+    this.setClickFavoriteHandler(this._callback.clickFavorite);
+  };
+
+  #onEnterKeyDown = (evt) => {
+    if (evt.key === KeyCode.ENTER && (evt.metaKey || evt.ctrlKey)) {
+      evt.preventDefault();
+      this._callback.formSubmit(PopupView.parseDataToMovie(this._data));
+    }
+  };
 
   // HANDLER
 
@@ -153,6 +202,28 @@ class PopupView extends AbstractView {
       .addEventListener('click', this.#clickFavoriteHandler);
   };
 
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.#comment = this.element.querySelector('.film-details__comment-input');
+    this.#comment.addEventListener('keydown', this.#onEnterKeyDown);
+  }
+
+  setNewCommentsSubmit = (callback) => {
+    this._callback.commentSubmit = callback;
+    this.#comment = this.element
+      .querySelector('.film-details__comment-input');
+    this.#comment.addEventListener('keydown', this.#onEnterKeyDown);
+  }
+
+  #setInnerHandlers = () => {
+    this.element
+      .querySelector('.film-details__emoji-list')
+      .addEventListener('input', this.#selectEmojiHandler);
+    this.element
+      .querySelector('.film-details__comment-input')
+      .addEventListener('input', this.#messageInputHandler);
+  }
+
   #clickCloseHandler = (evt) => {
     evt.preventDefault();
     this._callback.clickClose();
@@ -171,6 +242,41 @@ class PopupView extends AbstractView {
   #clickFavoriteHandler = (evt) => {
     evt.preventDefault();
     this._callback.clickFavorite();
+  };
+
+  #selectEmojiHandler = (evt) => {
+    evt.preventDefault();
+
+    if (evt.target.nodeName === 'INPUT') {
+
+      this.updateData({
+        userEmoji: `<img src="images/emoji/${evt.target.value}.png" width="55" height="55" alt="emoji-${evt.target.value}">`,
+        isEmojiChecked: evt.target.id,
+      });
+    }
+  };
+
+  #messageInputHandler = (evt) => {
+    evt.preventDefault();
+    this.updateData({
+      userMessage: evt.target.value,
+    }, true);
+  };
+
+  static parseMovieToData = (Movie) => ({...Movie,
+    userEmoji: '',
+    userMessage: '',
+    isEmojiChecked: '',
+  });
+
+  static parseDataToMovie = (data) => {
+    const movie = {...data};
+
+    delete movie.userEmoji;
+    delete movie.userMessage;
+    delete movie.isEmojiChecked;
+
+    return movie;
   };
 }
 

@@ -4,4 +4,8 @@ const SortType = {
   RATING: 'rating',
 };
 
-export {SortType};
+const KeyCode = {
+  ENTER: 'Enter'
+};
+
+export {SortType, KeyCode};
