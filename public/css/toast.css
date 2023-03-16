@@ -1,0 +1,17 @@
+.toast {
+  min-width: 150px;
+  max-width: 275px;
+  padding: 5px;
+  text-align: left;
+  position: fixed;
+  content: '';
+  top: 40px;
+  z-index: 10;
+  left: 20px;
+  background: linear-gradient(to left top, #1434A4, #000080);
+  border-radius: 5px;
+}
+
+.toast-message {
+  font-size: 16px;
+}

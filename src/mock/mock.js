@@ -119,6 +119,13 @@ const getActors = () => {
   return actorsList[getRandomPositiveFloat(0, actorsList.length - 1)];
 };
 
+const getWatchingDate = () => {
+  const maxDaysGap = -50;
+  const daysGap = getRandomInteger(maxDaysGap, 0);
+
+  return dayjs().add(daysGap, 'day').toDate();
+};
+
 const getCountry = () => {
   const countryList = [
     'Switzerland',
@@ -221,6 +228,7 @@ const createMovie = () => {
       isFavorite: Boolean(Math.floor(getRandomPositiveFloat(0, 1))),
       isWatched: Boolean(Math.floor(getRandomPositiveFloat(0, 1))),
       isWatchList: Boolean(Math.floor(getRandomPositiveFloat(0, 1))),
+      watchingDate: getWatchingDate(),
     };
 
     movieId++;
@@ -251,7 +259,7 @@ const getMovie = createMovie();
 
 const getComment = createComment();
 
-const createMovieList = () => Array.from({length: 29}, getMovie);
+const createMovieList = () => Array.from({length: 23}, getMovie);
 
 const createCommentList = () => Array.from({length: 100}, getComment);
 
