@@ -1,28 +1,5 @@
 import AbstractView from './abstract-view.js';
-
-const UserRating = {
-  NOVICE: 10,
-  FAN: 20,
-  MOVIE_BUFF: 21
-};
-
-const isNovice = (data) => data <= UserRating.NOVICE;
-const isFan = (data) => data <= UserRating.FAN && data > UserRating.NOVICE;
-const isMovieBuff = (data) => data >= UserRating.MOVIE_BUFF;
-
-const getCountHisotry = (data) => data.filter((movie) => movie.isWatched).length;
-
-const getUserRating = (data) => {
-  if (isNovice(getCountHisotry(data))) {
-    return 'Novice';
-  }
-  if (isFan(getCountHisotry(data))) {
-    return 'Fan';
-  }
-  if (isMovieBuff(getCountHisotry(data))) {
-    return 'Movie Buff';
-  }
-};
+import {getUserRating} from '../util/util.js';
 
 const createProfileTemplate = (moviesList) => (
   `<section class="header__profile profile">

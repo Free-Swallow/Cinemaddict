@@ -65,6 +65,30 @@ const updateItem = (items, update) => {
 const sortByDate = (a, b) => b.year > a.year;
 const sortByRating = (a, b) => b.rating > a.rating;
 
+const UserRating = {
+  NOVICE: 10,
+  FAN: 20,
+  MOVIE_BUFF: 21
+};
+
+const isNovice = (data) => data <= UserRating.NOVICE;
+const isFan = (data) => data <= UserRating.FAN && data > UserRating.NOVICE;
+const isMovieBuff = (data) => data >= UserRating.MOVIE_BUFF;
+
+const getCountHisotry = (data) => data.filter((movie) => movie.isWatched).length;
+
+const getUserRating = (data) => {
+  if (isNovice(getCountHisotry(data))) {
+    return 'Novice';
+  }
+  if (isFan(getCountHisotry(data))) {
+    return 'Fan';
+  }
+  if (isMovieBuff(getCountHisotry(data))) {
+    return 'Movie Buff';
+  }
+};
+
 export {
   getRandomPositiveFloat,
   getRandomInteger,
@@ -73,5 +97,6 @@ export {
   convertCommentDate,
   updateItem,
   sortByDate,
-  sortByRating
+  sortByRating,
+  getUserRating
 };
