@@ -243,10 +243,10 @@ const createComment = () => {
   return function () {
     const comment = {
       id: commentId,
-      message: getMessage(),
-      name: getCommentAuthor(),
+      comment: getMessage(),
+      author: getCommentAuthor(),
       date: getCommentDate(),
-      smile: getSmile(),
+      emotion: getSmile(),
     };
 
     commentId++;

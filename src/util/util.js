@@ -89,6 +89,8 @@ const getUserRating = (data) => {
   }
 };
 
+const formatDate = (date, format) =>  dayjs(date).format(format);
+
 export {
   getRandomPositiveFloat,
   getRandomInteger,
@@ -98,5 +100,6 @@ export {
   updateItem,
   sortByDate,
   sortByRating,
-  getUserRating
+  getUserRating,
+  formatDate
 };
