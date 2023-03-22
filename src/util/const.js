@@ -1,5 +1,6 @@
 const MOVIES_COUNT_PER_STEP = 5;
-const MOVIES_COUNT_START = 4;
+
+const CLASS_OVERFLOW_HIDDEN = 'hide-overflow';
 
 const SortType = {
   DEFAULT: 'default',
@@ -9,6 +10,8 @@ const SortType = {
 
 const KeyCode = {
   ENTER: 'Enter',
+  ESCAPE: 'Escape',
+  ESC: 'Esc',
 };
 
 const EXTRA_LIST = [
@@ -18,7 +21,7 @@ const EXTRA_LIST = [
 
 const sortExtraMovies = {
   'Top rated': (movies) => movies.slice().sort((a, b) => b.rating - a.rating).slice(0, 2),
-  'Most commented': (movies) => movies.slice().sort((a, b) => b.comments - a.comments).slice(0, 2),
+  'Most commented': (movies) => movies.slice().sort((a, b) => b.comments.length - a.comments.length).slice(0, 2),
 };
 
 const UserActions = {
@@ -31,6 +34,7 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 const FilterType = {
@@ -39,6 +43,12 @@ const FilterType = {
   HISTORY: 'History',
   FAVORITE: 'Favorite',
   STATS: 'Stats',
+};
+
+const State = {
+  SAVING: 'SAVING',
+  DELETING: 'DELETING',
+  ABORTING: 'ABORTING',
 };
 
 const StatisticTime = {
@@ -66,4 +76,25 @@ const ChartValues = {
   SCALES_FONT_SIZE: 20,
 };
 
-export {SortType, KeyCode, UpdateType, UserActions, FilterType, StatisticTime, ChartValues, EXTRA_LIST, sortExtraMovies, MOVIES_COUNT_PER_STEP, MOVIES_COUNT_START};
+const Method = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+};
+
+export {
+  SortType,
+  KeyCode,
+  UpdateType,
+  UserActions,
+  FilterType,
+  StatisticTime,
+  ChartValues,
+  EXTRA_LIST,
+  sortExtraMovies,
+  MOVIES_COUNT_PER_STEP,
+  Method,
+  State,
+  CLASS_OVERFLOW_HIDDEN
+};

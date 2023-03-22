@@ -1,5 +1,5 @@
 import AbstractView from './abstract-view.js';
-import {convertTime} from '../util/util.js';
+import {convertTime, formatDate} from '../util/util.js';
 
 const convertDescription = (str) => {
   if (str.length > 200) {
@@ -27,7 +27,7 @@ const createMovieCardTemplate = ({
             <h3 class="film-card__title">${title}</h3>
             <p class="film-card__rating">${rating}</p>
             <p class="film-card__info">
-              <span class="film-card__year">${year}</span>
+              <span class="film-card__year">${formatDate(year, 'YYYY')}</span>
               <span class="film-card__duration">${convertTime(runtime)}</span>
               <span class="film-card__genre">${genre.join(', ')}</span>
             </p>
@@ -87,7 +87,7 @@ class MovieCardView extends AbstractView {
 
   #clickCallPopupHandler = (evt) => {
     evt.preventDefault();
-    this._callback.clickCallPopup();
+    this._callback.clickCallPopup(this.#movie);
   };
 
   #clickWatchlistHandler = (evt) => {
